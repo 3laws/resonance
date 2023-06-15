@@ -7,20 +7,25 @@ arch=('x86_64')
 pkgdesc='An intuitive GTK4/LibAdwaita music player'
 url='https://github.com/nate-xyz/resonance'
 license=('GPL3')
-depends=('gtk4' 'gstreamer' 'gst-plugins-base' 'gst-plugins-bad'
-        'libadwaita' 'python-tqdm' 'python-mutagen' 'python-loguru')
-makedepends=('git' 'meson' 'ninja' 'rust')
+depends=('gtk4' 'gstreamer' 'gst-plugins-base' 'gst-plugins-bad' 
+        'libadwaita' 'python-tqdm' 'python-mutagen' 'python-loguru' 'rust')
+makedepends=('git' 'meson' 'ninja')
 provides=("resonance=$pkgver")
 source=("git+${url}.git#commit=9782609")
 sha256sums=('SKIP')
 
 build() {
-    arch-meson --buildtype=release "$srcdir/${pkgname}" build --prefix=/usr 
+    cd "$srcdir/$pkgname"
+    arch-meson --buildtype=release "$srcdir/$pkgname" build --prefix=/usr 
     meson compile -C build
     }
 
-package() {
-    cd "${srcdir}/${pkgname}"
-    DESTDIR="${pkgdir}" ninja -C build install
+check() {
+    cd "$srcdir/$pkgname"
+    meson test -C build --print-errorlogs || :
 }
 
+package() {
+    cd "$srcdir/$pkgname"
+    meson install -C build --destdir "$pkgdir"
+}
